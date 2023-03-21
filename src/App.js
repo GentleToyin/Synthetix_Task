@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import NewsCard from "./components/NewsCard";
+import Loader from "./components/Loader";
 import { getToken, checkTokenStatus, searchArticle } from "./services";
 import "./App.css";
 
@@ -8,6 +9,7 @@ function App() {
   const [query, setQuery] = useState("");
   const [empty, setEmpty] = useState("You have not made a search");
   const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [userToken, setUserToken] = useState(
     sessionStorage.getItem("syn-token")
   );
@@ -26,6 +28,7 @@ function App() {
     }
   };
   const handleSearchArticle = async () => {
+    setLoading(true);
     const data = {
       userid: 123456,
       query: query,
@@ -36,6 +39,7 @@ function App() {
     try {
       const { data: res } = await searchArticle(data, userToken);
       res.results ? setArticles(res.results) : setEmpty(res.intent.answer);
+      setLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -55,26 +59,40 @@ function App() {
           keyUp={(e) => e.code === "Enter" && handleSearchArticle}
         />
       </div>
-      <section
-        style={{
-          marginTop: "100px",
-          display: "flex",
-          padding: "0 2%",
-          gap: "1%",
-          flexWrap: "wrap",
-        }}
-        className="cards_section"
-      >
-        {articles.length > 0 ? (
-          articles.map((article) => (
-            <div className="news_card">
-              <NewsCard article={article} />
-            </div>
-          ))
-        ) : (
-          <div style={{ fontSize: "20px" }}>{empty}</div>
-        )}
-      </section>
+      {loading ? (
+        <div
+          style={{
+            width: "100%",
+            height: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Loader />
+        </div>
+      ) : (
+        <section
+          style={{
+            marginTop: "100px",
+            display: "flex",
+            padding: "0 2%",
+            gap: "1%",
+            flexWrap: "wrap",
+          }}
+          className="cards_section"
+        >
+          {articles.length > 0 ? (
+            articles.map((article) => (
+              <div className="news_card">
+                <NewsCard article={article} />
+              </div>
+            ))
+          ) : (
+            <div style={{ fontSize: "20px" }}>{empty}</div>
+          )}
+        </section>
+      )}
     </div>
   );
 }
