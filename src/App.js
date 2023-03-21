@@ -14,6 +14,7 @@ function App() {
 
   useEffect(() => {
     userToken === null && handleGetToken();
+    handleCheckToken();
   });
 
   const handleGetToken = async () => {
@@ -38,6 +39,12 @@ function App() {
     } catch (error) {
       console.log(error);
     }
+  };
+  const handleCheckToken = async () => {
+    try {
+      const { data: res } = await checkTokenStatus();
+      res.ValidToken === false || (res.Expired === true && handleGetToken());
+    } catch (error) {}
   };
   return (
     <div>
