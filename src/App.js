@@ -17,12 +17,13 @@ function App() {
   useEffect(() => {
     userToken === null && handleGetToken();
     handleCheckToken();
-  });
+  }, []);
 
   const handleGetToken = async () => {
     try {
       const { data: res } = await getToken();
       sessionStorage.setItem("syn-token", res.token);
+      setUserToken(res.token);
     } catch (error) {
       console.log(error);
     }
@@ -43,11 +44,14 @@ function App() {
     } catch (error) {
       console.log(error);
     }
+    setQuery("");
   };
   const handleCheckToken = async () => {
     try {
       const { data: res } = await checkTokenStatus();
-      res.ValidToken === false || (res.Expired === true && handleGetToken());
+      if (res.ValidToken === false) {
+        handleGetToken();
+      }
     } catch (error) {}
   };
   return (
@@ -56,7 +60,8 @@ function App() {
         <Header
           setQuery={setQuery}
           handleSearchArticle={handleSearchArticle}
-          keyUp={(e) => e.code === "Enter" && handleSearchArticle}
+          keyUp={(e) => e.code === "Enter" && handleSearchArticle()}
+          query={query}
         />
       </div>
       {loading ? (
@@ -83,8 +88,8 @@ function App() {
           className="cards_section"
         >
           {articles.length > 0 ? (
-            articles.map((article) => (
-              <div className="news_card">
+            articles.map((article, i) => (
+              <div className="news_card" key={i}>
                 <NewsCard article={article} />
               </div>
             ))
