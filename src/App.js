@@ -49,10 +49,12 @@ function App() {
   const handleCheckToken = async () => {
     try {
       const { data: res } = await checkTokenStatus();
-      if (res.ValidToken === false) {
+      if (res.ValidToken === false || res.Expired === true) {
         handleGetToken();
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div>
@@ -90,7 +92,7 @@ function App() {
           {articles.length > 0 ? (
             articles.map((article, i) => (
               <div className="news_card" key={i}>
-                <NewsCard article={article} />
+                <NewsCard article={article} token={userToken} />
               </div>
             ))
           ) : (
